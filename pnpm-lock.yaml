@@ -7,6 +7,27 @@ settings:
 importers:
 
   .:
+    devDependencies:
+      '@typescript-eslint/eslint-plugin':
+        specifier: ^5.62.0
+        version: 5.62.0(@typescript-eslint/parser@5.62.0(eslint@8.57.1)(typescript@4.5.5))(eslint@8.57.1)(typescript@4.5.5)
+      '@typescript-eslint/parser':
+        specifier: ^5.62.0
+        version: 5.62.0(eslint@8.57.1)(typescript@4.5.5)
+      eslint:
+        specifier: ^8.57.1
+        version: 8.57.1
+      eslint-plugin-import:
+        specifier: ^2.32.0
+        version: 2.32.0(@typescript-eslint/parser@5.62.0(eslint@8.57.1)(typescript@4.5.5))(eslint@8.57.1)
+      prettier:
+        specifier: ^3.8.0
+        version: 3.8.0
+      typescript:
+        specifier: ~4.5.4
+        version: 4.5.5
+
+  packages/client:
     dependencies:
       class-variance-authority:
         specifier: ^0.7.1
@@ -78,33 +99,15 @@ importers:
       '@types/react-dom':
         specifier: ^19.2.3
         version: 19.2.3(@types/react@19.2.9)
-      '@typescript-eslint/eslint-plugin':
-        specifier: ^5.62.0
-        version: 5.62.0(@typescript-eslint/parser@5.62.0(eslint@8.57.1)(typescript@4.5.5))(eslint@8.57.1)(typescript@4.5.5)
-      '@typescript-eslint/parser':
-        specifier: ^5.62.0
-        version: 5.62.0(eslint@8.57.1)(typescript@4.5.5)
       autoprefixer:
         specifier: ^10.4.23
         version: 10.4.23(postcss@8.5.6)
       electron:
         specifier: 40.0.0
         version: 40.0.0
-      eslint:
-        specifier: ^8.57.1
-        version: 8.57.1
-      eslint-plugin-import:
-        specifier: ^2.32.0
-        version: 2.32.0(@typescript-eslint/parser@5.62.0(eslint@8.57.1)(typescript@4.5.5))(eslint@8.57.1)
-      prettier:
-        specifier: ^3.8.0
-        version: 3.8.0
       tailwindcss:
         specifier: ^4.1.18
         version: 4.1.18
-      typescript:
-        specifier: ~4.5.4
-        version: 4.5.5
       vite:
         specifier: ^5.4.21
         version: 5.4.21(@types/node@25.0.9)(lightningcss@1.30.2)(terser@5.46.0)
