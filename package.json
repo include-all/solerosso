@@ -11,10 +11,14 @@
     "web:dev": "cd packages/web && pnpm dev",
     "web:build": "cd packages/web && pnpm build",
     "web:start": "cd packages/web && pnpm start",
+    "api:dev": "cd packages/api && pnpm start:dev",
+    "api:build": "cd packages/api && pnpm build",
+    "api:start": "cd packages/api && pnpm start",
     "lint": "cd packages/client && npm run lint",
     "format": "prettier --write \"packages/**/*.{ts,tsx,css,json}\""
   },
   "devDependencies": {
+    "@nestjs/cli": "^11.0.16",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
     "eslint": "^8.57.1",
