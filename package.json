@@ -8,6 +8,9 @@
   "scripts": {
     "client:start": "cd packages/client && npm start",
     "client:build": "cd packages/client && npm run build",
+    "web:dev": "cd packages/web && pnpm dev",
+    "web:build": "cd packages/web && pnpm build",
+    "web:start": "cd packages/web && pnpm start",
     "lint": "cd packages/client && npm run lint",
     "format": "prettier --write \"packages/**/*.{ts,tsx,css,json}\""
   },
