@@ -6,6 +6,7 @@ import {
   OnGatewayDisconnect,
   ConnectedSocket,
   MessageBody,
+  Logger,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { CollaborationService } from './collaboration.service';
@@ -22,6 +23,8 @@ interface BoardRoom {
 export class CollaborationGateway
   implements OnGatewayConnection, OnGatewayDisconnect
 {
+  private readonly logger = new Logger(CollaborationGateway.name);
+
   @WebSocketServer()
   server: Server;
 
@@ -33,12 +36,14 @@ export class CollaborationGateway
   ) {}
 
   async handleConnection(client: Socket) {
+    this.logger.log(`Client connected: ${client.id}`);
     try {
       const token =
         client.handshake.auth?.token ||
         client.handshake.headers?.authorization?.split(' ')[1];
 
       if (!token) {
+        this.logger.warn(`Client ${client.id} disconnected - no token`);
         client.disconnect();
         return;
       }
@@ -46,12 +51,15 @@ export class CollaborationGateway
       const payload = this.jwtService.verify(token);
       client.data.userId = payload.sub;
       client.data.username = payload.email;
-    } catch {
+      this.logger.log(`Client ${client.id} authenticated as user ${payload.sub}`);
+    } catch (error) {
+      this.logger.warn(`Client ${client.id} disconnected - invalid token`);
       client.disconnect();
     }
   }
 
   handleDisconnect(client: Socket) {
+    this.logger.log(`Client disconnected: ${client.id}`);
     const boardRooms = client.data.boardRooms as Set<string> || new Set();
     for (const boardId of boardRooms) {
       this.leaveBoardRoom(client, boardId);
@@ -65,6 +73,7 @@ export class CollaborationGateway
   ) {
     const { boardId } = data;
     const userId = client.data.userId;
+    this.logger.log(`User ${userId} joining board ${boardId}`);
 
     const isMember = await this.collaborationService.isBoardMember(
       boardId,
@@ -72,6 +81,7 @@ export class CollaborationGateway
     );
 
     if (!isMember) {
+      this.logger.warn(`User ${userId} denied access to board ${boardId}`);
       return { error: '无权访问此白板' };
     }
 
@@ -102,6 +112,8 @@ export class CollaborationGateway
       username: client.data.username,
     });
 
+    this.logger.log(`User ${userId} joined board ${boardId}. Online users: ${room.userIds.size}`);
+
     return {
       success: true,
       onlineUsers: Array.from(room.userIds),
@@ -113,6 +125,7 @@ export class CollaborationGateway
     @ConnectedSocket() client: Socket,
     @MessageBody() data: { boardId: string },
   ) {
+    this.logger.log(`User ${client.data.userId} leaving board ${data.boardId}`);
     this.leaveBoardRoom(client, data.boardId);
     client.leave(`board:${data.boardId}`);
   }
@@ -123,6 +136,7 @@ export class CollaborationGateway
     @MessageBody() data: { boardId: string; element: any },
   ) {
     const { boardId, element } = data;
+    this.logger.log(`User ${client.data.userId} creating element in board ${boardId}: type=${element.type}`);
 
     const created = await this.collaborationService.createElement(
       boardId,
@@ -144,6 +158,7 @@ export class CollaborationGateway
     @MessageBody() data: { boardId: string; elementId: string; elementData: any },
   ) {
     const { boardId, elementId, elementData } = data;
+    this.logger.log(`User ${client.data.userId} updating element ${elementId} in board ${boardId}`);
 
     await this.collaborationService.updateElement(elementId, elementData);
 
@@ -162,6 +177,7 @@ export class CollaborationGateway
     @MessageBody() data: { boardId: string; elementId: string },
   ) {
     const { boardId, elementId } = data;
+    this.logger.log(`User ${client.data.userId} deleting element ${elementId} in board ${boardId}`);
 
     await this.collaborationService.deleteElement(elementId);
 

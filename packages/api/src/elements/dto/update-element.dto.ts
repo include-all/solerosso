@@ -1,6 +1,7 @@
 import { IsNumber, IsOptional, IsBoolean } from 'class-validator';
 
 export class UpdateElementDto {
+  @IsOptional()
   data?: any;
 
   @IsNumber()

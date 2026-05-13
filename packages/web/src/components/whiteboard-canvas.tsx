@@ -14,6 +14,7 @@ import {
 } from "react-konva";
 import { KonvaEventObject } from "konva/lib/Node";
 import { useWhiteboardStore, WhiteboardElement } from "@/lib/store";
+import { v4 as uuidv4 } from "uuid";
 import Konva from "konva";
 
 const COLORS = {
@@ -179,7 +180,7 @@ export function WhiteboardCanvas() {
       const pos = stage.getPointerPosition();
       if (!pos) return;
 
-      const id = Date.now().toString();
+      const id = uuidv4();
 
       if (tool === "pen" && currentLine.length > 2) {
         addElement({
@@ -258,7 +259,7 @@ export function WhiteboardCanvas() {
       const pos = stage.getPointerPosition();
       if (!pos) return;
 
-      const id = Date.now().toString();
+      const id = uuidv4();
 
       if (tool === "sticky") {
         addElement({

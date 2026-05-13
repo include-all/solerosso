@@ -18,8 +18,9 @@ export const elementsApi = {
     return data;
   },
 
-  create: async (boardId: string, type: string, elementData: any, zIndex?: number) => {
+  create: async (boardId: string, type: string, elementData: any, zIndex?: number, id?: string) => {
     const { data } = await api.post<Element>(`/api/boards/${boardId}/elements`, {
+      id,
       type,
       data: elementData,
       zIndex,
