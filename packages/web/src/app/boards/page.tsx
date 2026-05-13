@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Search, LayoutGrid, List } from "lucide-react";
 import { AppLayout } from "@/components/layout/app-layout";
 import { BoardCard } from "@/components/board-card";
@@ -8,44 +8,63 @@ import { CreateBoardDialog } from "@/components/create-board-dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Board } from "@/lib/types";
-import { mockBoards } from "@/lib/mock-data";
+import { Board, boardsApi } from "@/services/boards";
 
 export default function BoardsPage() {
-  const [boards, setBoards] = useState<Board[]>(mockBoards);
+  const [boards, setBoards] = useState<Board[]>([]);
   const [search, setSearch] = useState("");
   const [view, setView] = useState<"grid" | "list">("grid");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadBoards();
+  }, []);
+
+  const loadBoards = async () => {
+    try {
+      const data = await boardsApi.getAll();
+      setBoards(data);
+    } catch (err) {
+      console.error("Failed to load boards:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filteredBoards = boards.filter((board) =>
-    board.title.toLowerCase().includes(search.toLowerCase())
+    board.title.toLowerCase().includes(search.toLowerCase()),
   );
 
-  const starredBoards = filteredBoards.filter((b) => b.isStarred);
-  const recentBoards = filteredBoards.filter((b) => !b.isStarred);
+  const starredBoards = filteredBoards.filter((b) => b.isPublic);
+  const recentBoards = filteredBoards.filter((b) => !b.isPublic);
 
-  const handleCreateBoard = (title: string, description?: string) => {
-    const newBoard: Board = {
-      id: Date.now().toString(),
-      title,
-      description,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      isStarred: false,
-    };
-    setBoards([newBoard, ...boards]);
+  const handleCreateBoard = async (title: string, description?: string) => {
+    try {
+      const newBoard = await boardsApi.create(title, description);
+      setBoards([newBoard, ...boards]);
+    } catch (err) {
+      console.error("Failed to create board:", err);
+    }
   };
 
-  const handleStarBoard = (id: string) => {
-    setBoards(
-      boards.map((board) =>
-        board.id === id ? { ...board, isStarred: !board.isStarred } : board
-      )
+  const handleDeleteBoard = async (id: string) => {
+    try {
+      await boardsApi.delete(id);
+      setBoards(boards.filter((board) => board.id !== id));
+    } catch (err) {
+      console.error("Failed to delete board:", err);
+    }
+  };
+
+  if (loading) {
+    return (
+      <AppLayout>
+        <div className="flex h-full items-center justify-center">
+          <div className="text-muted-foreground">加载中...</div>
+        </div>
+      </AppLayout>
     );
-  };
-
-  const handleDeleteBoard = (id: string) => {
-    setBoards(boards.filter((board) => board.id !== id));
-  };
+  }
 
   return (
     <AppLayout>
@@ -53,9 +72,7 @@ export default function BoardsPage() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold">白板</h1>
-            <p className="text-muted-foreground">
-              管理和组织你的白板
-            </p>
+            <p className="text-muted-foreground">管理和组织你的白板</p>
           </div>
           <CreateBoardDialog onCreate={handleCreateBoard} />
         </div>
@@ -93,33 +110,9 @@ export default function BoardsPage() {
         </div>
 
         <div className="mt-6 flex-1 overflow-auto">
-          {starredBoards.length > 0 && (
-            <div className="mb-8">
-              <h2 className="mb-4 text-sm font-medium text-muted-foreground">
-                收藏
-              </h2>
-              <div
-                className={
-                  view === "grid"
-                    ? "grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-                    : "flex flex-col gap-2"
-                }
-              >
-                {starredBoards.map((board) => (
-                  <BoardCard
-                    key={board.id}
-                    board={board}
-                    onStar={handleStarBoard}
-                    onDelete={handleDeleteBoard}
-                  />
-                ))}
-              </div>
-            </div>
-          )}
-
           <div>
             <h2 className="mb-4 text-sm font-medium text-muted-foreground">
-              最近
+              所有白板
             </h2>
             <div
               className={
@@ -128,11 +121,10 @@ export default function BoardsPage() {
                   : "flex flex-col gap-2"
               }
             >
-              {recentBoards.map((board) => (
+              {filteredBoards.map((board) => (
                 <BoardCard
                   key={board.id}
                   board={board}
-                  onStar={handleStarBoard}
                   onDelete={handleDeleteBoard}
                 />
               ))}

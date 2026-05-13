@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Star, MoreHorizontal, Trash2, Pencil } from "lucide-react";
+import { MoreHorizontal, Trash2 } from "lucide-react";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,16 +11,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Board } from "@/lib/types";
-import { cn } from "@/lib/utils";
+import { Board } from "@/services/boards";
 
 interface BoardCardProps {
   board: Board;
-  onStar: (id: string) => void;
   onDelete: (id: string) => void;
 }
 
-export function BoardCard({ board, onStar, onDelete }: BoardCardProps) {
+export function BoardCard({ board, onDelete }: BoardCardProps) {
   const router = useRouter();
   const formattedDate = new Date(board.updatedAt).toLocaleDateString("zh-CN", {
     month: "short",
@@ -40,24 +38,6 @@ export function BoardCard({ board, onStar, onDelete }: BoardCardProps) {
           </span>
         </div>
         <div className="flex items-center gap-1">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 opacity-0 group-hover:opacity-100"
-            onClick={(e) => {
-              e.stopPropagation();
-              onStar(board.id);
-            }}
-          >
-            <Star
-              className={cn(
-                "h-4 w-4",
-                board.isStarred
-                  ? "fill-yellow-400 text-yellow-400"
-                  : "text-muted-foreground"
-              )}
-            />
-          </Button>
           <DropdownMenu>
             <DropdownMenuTrigger
               render={
@@ -72,10 +52,6 @@ export function BoardCard({ board, onStar, onDelete }: BoardCardProps) {
               <MoreHorizontal className="h-4 w-4" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem>
-                <Pencil className="mr-2 h-4 w-4" />
-                重命名
-              </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 className="text-destructive"

@@ -1,0 +1,70 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  username  String
+  password  String
+  avatar    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  boards       Board[]
+  boardMembers BoardMember[]
+  elements     Element[]
+}
+
+model Board {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  isPublic    Boolean  @default(false)
+  ownerId     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  owner    User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  members  BoardMember[]
+  elements Element[]
+
+  @@index([ownerId])
+}
+
+model BoardMember {
+  id        String   @id @default(cuid())
+  role      String   @default("editor") // owner | editor | viewer
+  boardId   String
+  userId    String
+  createdAt DateTime @default(now())
+
+  board Board @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([boardId, userId])
+  @@index([boardId])
+  @@index([userId])
+}
+
+model Element {
+  id        String   @id @default(cuid())
+  type      String
+  data      Json
+  zIndex    Int      @default(0)
+  locked    Boolean  @default(false)
+  boardId   String
+  createdBy String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  board   Board @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  creator User? @relation(fields: [createdBy], references: [id], onDelete: SetNull)
+
+  @@index([boardId])
+}

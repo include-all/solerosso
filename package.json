@@ -17,6 +17,9 @@
     "lint": "cd packages/client && npm run lint",
     "format": "prettier --write \"packages/**/*.{ts,tsx,css,json}\""
   },
+  "pnpm": {
+    "onlyBuiltDependencies": ["prisma", "bcrypt", "@prisma/engines"]
+  },
   "devDependencies": {
     "@nestjs/cli": "^11.0.16",
     "@typescript-eslint/eslint-plugin": "^5.62.0",

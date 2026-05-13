@@ -50,7 +50,6 @@ function getTextAreaStyle(
     left: x * stageScale + stageX,
     top: y * stageScale + stageY,
     width: textAreaWidth * stageScale,
-    height: textAreaHeight * stageScale,
     height: textAreaHeight,
     fontSize: fontSize,
     fontFamily: "Inter",
@@ -518,7 +517,7 @@ export function WhiteboardCanvas() {
             {...eventProps}
             x={element.x}
             y={element.y}
-            points={element.points}
+            points={element.points || []}
             stroke={element.stroke}
             strokeWidth={2}
             pointerLength={10}
