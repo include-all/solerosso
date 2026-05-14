@@ -4,6 +4,7 @@ import {
   ForbiddenException,
   Logger,
 } from '@nestjs/common'
+import { Prisma } from '../../generated/prisma/client'
 import { PrismaService } from '../prisma/prisma.service'
 import { CreateBoardDto } from './dto/create-board.dto'
 import { UpdateBoardDto } from './dto/update-board.dto'
@@ -32,9 +33,10 @@ export class BoardsService {
     return board
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async findAll(userId: string, search?: string, starred?: boolean) {
     this.logger.debug(`Finding boards for user: ${userId}, search=${search}`)
-    const where: any = {
+    const where: Prisma.BoardWhereInput = {
       OR: [{ ownerId: userId }, { members: { some: { userId } } }],
     }
 

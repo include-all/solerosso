@@ -17,6 +17,18 @@ export interface WhiteboardElement {
   fontSize?: number;
 }
 
+interface ElementData {
+  x?: number;
+  y?: number;
+  width?: number;
+  height?: number;
+  text?: string;
+  fill?: string;
+  stroke?: string;
+  points?: number[];
+  fontSize?: number;
+}
+
 interface StageState {
   x: number;
   y: number;
@@ -43,7 +55,7 @@ interface WhiteboardState {
 
 // 将 API Element 转换为 WhiteboardElement
 function apiElementToWhiteboardElement(element: Element): WhiteboardElement {
-  const data = element.data as any;
+  const data = element.data as ElementData;
   return {
     id: element.id,
     type: element.type as WhiteboardElement["type"],
